@@ -1,6 +1,6 @@
 import pytest
 from fastapi.testclient import TestClient
-from main import app, Order, process_orders, cache
+from app.main import app, Order, process_orders
 
 client = TestClient(app)
 
