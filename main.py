@@ -15,6 +15,18 @@ class Order(BaseModel):
     quantity: int
     price: float
     status: str
+    
+    @validator('price')
+    def price_not_negative(cls, v):
+        if v < 0:
+            raise ValueError('must be greater than or equal to 0')
+        return v
+    
+    @validator('status')
+    def validate_status(cls, status):
+        if status not in ['completed', 'pending', 'canceled']:
+            raise ValueError('Invalid status. Must be "completed", "pending", or "canceled".')
+        return status
 
 class SolutionInput(BaseModel):
     orders: list[Order]
