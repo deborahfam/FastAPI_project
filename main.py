@@ -24,7 +24,7 @@ class Order(BaseModel):
     
     @validator('status')
     def validate_status(cls, status):
-        if status not in ['completed', 'pending', 'canceled']:
+        if status not in ['completed', 'pending', 'canceled', 'all']:
             raise ValueError('Invalid status. Must be "completed", "pending", or "canceled".')
         return status
 
