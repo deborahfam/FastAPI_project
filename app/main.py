@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from pydantic import BaseModel, validator
+from typing import List
 import redis
 
 app = FastAPI()
@@ -29,7 +30,7 @@ class Order(BaseModel):
         return status
 
 class SolutionInput(BaseModel):
-    orders: list[Order]
+    orders: List[Order]
     criterion: str
 
 @app.post("/solution")
@@ -47,7 +48,7 @@ async def process_orders_endpoint(input_data: SolutionInput):
 
     return result
 
-def process_orders(orders: list[Order], criterion: str) -> float:
+def process_orders(orders: List[Order], criterion: str) -> float:
     #if criterion not in ['completed', 'pending', 'canceled', 'all']:
     #    raise ValueError("Invalid criterion. Must be 'completed', 'pending' or 'canceled'.")
     filtered_orders = []
