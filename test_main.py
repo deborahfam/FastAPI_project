@@ -10,6 +10,41 @@ def test_root():
         assert response.status_code == 200
         assert response.json() == {"message": "Hello World"}
 
+def test_default():
+    orders_data = [{
+        "id": 1, 
+        "item": "Laptop",
+        "quantity": 1, 
+        "price": 999.99, 
+        "status": "completed"
+        },
+    
+       {
+           "id": 2, 
+           "item": "Smartphone", 
+           "quantity": 2, 
+           "price": 499.95, 
+           "status": "pending"
+           },
+       {
+           "id": 3, 
+           "item": "Headphones", 
+           "quantity": 3, 
+           "price": 99.90, 
+           "status": "completed"
+           },
+       {
+           "id": 4, 
+           "item": "Mouse", 
+           "quantity": 4, 
+           "price": 24.99, 
+           "status": "canceled"
+           }
+    ]
+    orders = [Order(**order_data) for order_data in orders_data]
+    result = process_orders(orders, 'completed')
+    assert result == 1299.69
+
 def test_negative_price():
     order_data = {
         "id": 1,
