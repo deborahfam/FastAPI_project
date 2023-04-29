@@ -1,27 +1,46 @@
 from fastapi import FastAPI
-from typing import List as List
+from pydantic import BaseModel, validator
+import redis
 
 app = FastAPI()
+cache = redis.Redis(host='localhost', port=6379)
 
 @app.get("/")
 async def root():
     return {"message": "Hello World"}
 
+class Order(BaseModel):
+    id: int
+    item: str
+    quantity: int
+    price: float
+    status: str
+
+class SolutionInput(BaseModel):
+    orders: list[Order]
+    criterion: str
+
 @app.post("/solution")
-async def process_orders_endpoint(data: dict):
-    orders = data["orders"]
-    criterion = data["criterion"]
-    revenue = process_orders(orders, criterion)
-    return {"revenue": revenue}
+async def process_orders_endpoint(input_data: SolutionInput):
+    # Check if the result is already cached
+    cache_key = str(input_data)
+    cached_result = cache.get(cache_key)
+    if cached_result:
+        result = float(cached_result.decode('utf-8'))
+    else:
+        # Compute the result using the process_orders function
+        result = process_orders(input_data.orders, input_data.criterion)
+        # Cache the result for future use
+        cache.set(cache_key, str(result).encode('utf-8'))
 
-def process_orders(orders: List[dict], criterion: str) -> float:
-    order_statuses = ["completed", "pending", "canceled"]
+    return result
 
-    if criterion not in order_statuses + ["all"]:
-        raise ValueError(f"Invalid criterion: {criterion}. Must be one of {order_statuses} or 'all'.")
-
-    filtered_orders = [order for order in orders if criterion == "all" or order["status"] == criterion]
-
-    total_revenue = sum(order["quantity"] * order["price"] for order in filtered_orders)
-    
+def process_orders(orders: list[Order], criterion: str) -> float:
+    #if criterion not in ['completed', 'pending', 'canceled', 'all']:
+    #    raise ValueError("Invalid criterion. Must be 'completed', 'pending' or 'canceled'.")
+    filtered_orders = []
+    for order in orders:
+        if criterion == 'all' or order.status == criterion:
+            filtered_orders.append(order)
+    total_revenue = sum([order.quantity * order.price for order in filtered_orders])
     return total_revenue
