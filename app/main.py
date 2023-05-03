@@ -2,9 +2,10 @@ from fastapi import FastAPI
 from pydantic import BaseModel, validator
 from typing import List
 import redis
+import os
 
 app = FastAPI()
-cache = redis.Redis(host='localhost', port=6379)
+cache = redis.from_url(os.environ.get('REDIS','redis://localhost:6379'))
 
 @app.get("/")
 async def root():
