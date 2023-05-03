@@ -1,8 +1,12 @@
 FROM python:3.10-slim-bullseye
 
-COPY . .
+WORKDIR .
 
-RUN pip install -r ./requirements.txt
+COPY ./requirements.txt ./requirements.txt
+
+RUN pip install --no-cache-dir --upgrade -r ./requirements.txt
+
+COPY . .
 
 EXPOSE 10000
 
